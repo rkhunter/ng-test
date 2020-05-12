@@ -1,29 +1,39 @@
-<ng-container *ngIf="launchDetails$ | async as launchDetails">
-  <section style="padding-top: 20px;">
-    <mat-card style="width: 400px; margin: auto;">
-      <mat-card-header>
-        <mat-card-title>{{ launchDetails.mission_name }}</mat-card-title>
-      </mat-card-header>
-      <img
-        height="256"
-        width="256"
-        mat-card-image
-        [src]="launchDetails.links.mission_patch"
-        alt="Mission patch of {{ launchDetails.mission_name }}"
-      />
-      <mat-card-content>
-        <p>{{ launchDetails.details }}</p>
-      </mat-card-content>
-    </mat-card>
-  </section>
-  <section class="photo-grid">
-    <img
-      *ngFor="let pic of launchDetails.links.flickr_images"
-      [src]="pic"
-      alt="Picture of {{ launchDetails.mission_name }}"
-      height="300"
-      width="300"
-      loading="lazy"
-    />
-  </section>
+<div *ngIf="!(loaded$ | async)">
+  Loading...
+</div>
+<ng-container *ngIf="(launchDetails$ | async) as launchDetails">
+  <ng-container *ngIf="loaded$ | async">
+    <mat-toolbar>
+      <a routerLink="/">
+        <mat-icon aria-hidden="false" aria-label="Back to list">keyboard_arrow_left</mat-icon>
+      </a>
+
+      <span>{{ launchDetails.mission_name }}</span>
+    </mat-toolbar>
+
+    <div fxLayout="row" fxLayoutAlign="space-between" style="padding-top: 20px;">
+      <section fxFlex="30">
+        <mat-card style="width: 400px; margin: auto;">
+          <img
+            height="auto"
+            width="256"
+            mat-card-image
+            [src]="launchDetails.links.mission_patch"
+            alt="Mission patch of {{ launchDetails.mission_name }}"
+          />
+          <mat-card-content>
+            <p>{{ launchDetails.details }}</p>
+          </mat-card-content>
+        </mat-card>
+      </section>
+      <section fxFlex="70" fxLayout="row" fxLayoutAlign="space-between" class="photo-grid">
+        <ks-carousel
+          [carouselConfig]="{maxWidth: '100%', maxHeight: '800px', showArrows: true, objectFit: 'contain', keyboardEnable: true, modalGalleryEnable: false}"
+          [id]="0"
+          [images]="launchDetails.images"
+          fxFlex="100"
+        ></ks-carousel>
+      </section>
+    </div>
+  </ng-container>
 </ng-container>

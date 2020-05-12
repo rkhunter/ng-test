@@ -1,8 +1,8 @@
 import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { map, switchMap } from "rxjs/operators";
-import { LaunchDetailsGQL } from "../services/spacexGraphql.service";
-
+import { map, switchMap, tap, filter } from "rxjs/operators";
+import { Image } from "@ks89/angular-modal-gallery";
+import { LaunchDetailsFacadeService } from '../services/launch-details-facade.service';
 @Component({
   selector: "app-launch-details",
   templateUrl: "./launch-details.component.html",
@@ -12,12 +12,20 @@ import { LaunchDetailsGQL } from "../services/spacexGraphql.service";
 export class LaunchDetailsComponent {
   constructor(
     private readonly route: ActivatedRoute,
-    private readonly launchDetailsService: LaunchDetailsGQL
+    private readonly launchDetailsFacade: LaunchDetailsFacadeService
   ) {}
+
+  loaded$ = this.launchDetailsFacade.launchDetailsLoaded$;
 
   launchDetails$ = this.route.paramMap.pipe(
     map(params => params.get("id") as string),
-    switchMap(id => this.launchDetailsService.fetch({ id })),
-    map(res => res.data.launch)
+    switchMap(id => this.launchDetailsFacade.pastLaunchDetailsStoreCache(id)),
+    filter(x => !!x),
+    map(res => ({
+      ...res,
+      images: res.links.flickr_images.map((x, index) => new Image(
+        index, { img: x }
+      ))
+    }))
   );
 }
